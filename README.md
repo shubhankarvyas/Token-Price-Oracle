@@ -147,9 +147,9 @@ MIT License - see LICENSE file for details
 
 ## 🔗 Links
 
-- **Live Demo**: [Your Vercel URL]
-- **API Documentation**: [Your Backend URL]/api
-- **GitHub**: [Your GitHub Repository]
+- **Live Demo**: [[Your Vercel URL](https://token-price-oracle-pied.vercel.app/)]
+- **API Documentation**: [[Your Backend URL](https://token-price-api-d3n4.onrender.com)]/api
+- **GitHub**: [[Your GitHub Repository](https://github.com/shubhankarvyas/Token-Price-Oracle)]
 
 ---
 
