@@ -30,7 +30,10 @@ app.use(helmet({
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.CORS_ORIGINS?.split(',') || ['http://localhost:3000'],
+  origin: process.env.CORS_ORIGINS?.split(',') || [
+    'https://token-price-oracle-pied.vercel.app',
+    'http://localhost:3000'
+  ],
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -49,12 +52,12 @@ app.use(compression());
 // Request logging middleware
 app.use((req, res, next) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     logger.info(`${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`);
   });
-  
+
   next();
 });
 
@@ -90,10 +93,10 @@ app.use('*', (req, res) => {
 // Global error handler
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   logger.error('Global error handler:', error);
-  
+
   const statusCode = error.statusCode || 500;
   const message = error.message || 'Internal Server Error';
-  
+
   res.status(statusCode).json({
     error: message,
     statusCode,
@@ -105,7 +108,7 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
 // Graceful shutdown handler
 const gracefulShutdown = (signal: string) => {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
-  
+
   // Close Redis connection
   redisService.disconnect()
     .then(() => {
@@ -143,7 +146,7 @@ async function startServer() {
 
     // BullMQ service is initialized in constructor
     logger.info('BullMQ service status checked');
-    
+
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);
       logger.info(`API endpoints available at http://localhost:${PORT}${API_PREFIX}`);
