@@ -33,11 +33,11 @@ class BullMQService {
 
   constructor() {
     this.isEnabled = !!process.env.BULLMQ_REDIS_URL;
-    
+
     if (this.isEnabled) {
       this.initializeRedis();
       this.initializeQueue();
-      
+
       // Start the worker automatically
       this.startWorker(processPriceHistoryJob);
     } else {
@@ -48,7 +48,7 @@ class BullMQService {
   private initializeRedis(): void {
     try {
       this.redis = new Redis(process.env.BULLMQ_REDIS_URL || 'redis://localhost:6379', {
-        maxRetriesPerRequest: 3,
+        maxRetriesPerRequest: null,
         enableOfflineQueue: false,
         lazyConnect: true
       });
@@ -78,7 +78,7 @@ class BullMQService {
 
     try {
       const queueName = process.env.BULLMQ_QUEUE_NAME || 'price-history';
-      
+
       this.queue = new Queue<PriceHistoryJobData, PriceHistoryJobResult>(queueName, {
         connection: this.redis,
         defaultJobOptions: {
@@ -123,7 +123,7 @@ class BullMQService {
       });
 
       logger.info(`Price history job added to queue: ${job.id} for ${jobData.token} on ${jobData.network}`);
-      
+
       return {
         jobId: job.id || 'unknown',
         status: 'queued'
@@ -150,13 +150,13 @@ class BullMQService {
 
     try {
       const job = await Job.fromId(this.queue, jobId);
-      
+
       if (!job) {
         return null;
       }
 
       const status = await job.getState();
-      
+
       return {
         id: job.id || 'unknown',
         status: status,
@@ -209,7 +209,7 @@ class BullMQService {
     }
 
     const queueName = process.env.BULLMQ_QUEUE_NAME || 'price-history';
-    
+
     this.worker = new Worker<PriceHistoryJobData, PriceHistoryJobResult>(
       queueName,
       processorFunction,
