@@ -47,7 +47,13 @@ class BullMQService {
 
   private initializeRedis(): void {
     try {
-      this.redis = new Redis(process.env.BULLMQ_REDIS_URL || 'redis://localhost:6379', {
+      // Ensure Redis URL has proper protocol
+      let redisUrl = process.env.BULLMQ_REDIS_URL || 'redis://localhost:6379';
+      if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
+        redisUrl = `redis://${redisUrl}`;
+      }
+
+      this.redis = new Redis(redisUrl, {
         maxRetriesPerRequest: null,
         enableOfflineQueue: false,
         lazyConnect: true

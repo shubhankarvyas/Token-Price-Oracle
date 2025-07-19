@@ -8,11 +8,16 @@ class RedisService {
 
   constructor() {
     this.isEnabled = process.env.REDIS_ENABLED !== 'false' && !!process.env.REDIS_URL;
-    
+
     if (this.isEnabled) {
+      // Ensure Redis URL has proper protocol
+      let redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+      if (!redisUrl.startsWith('redis://') && !redisUrl.startsWith('rediss://')) {
+        redisUrl = `redis://${redisUrl}`;
+      }
+
       this.client = createClient({
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
-        password: process.env.REDIS_PASSWORD || undefined,
+        url: redisUrl,
         database: parseInt(process.env.REDIS_DB || '0')
       });
 
@@ -68,7 +73,7 @@ class RedisService {
         logger.warn('Redis not connected, skipping get operation');
         return null;
       }
-      
+
       const value = await this.client.get(key);
       logger.debug(`Redis GET ${key}: ${value ? 'found' : 'not found'}`);
       return value;
@@ -150,7 +155,7 @@ class RedisService {
     const safeToken = token?.toString()?.toLowerCase() || 'unknown';
     const safeNetwork = network?.toString()?.toLowerCase() || 'unknown';
     const safeTimestamp = timestamp?.toString() || new Date().toISOString();
-    
+
     return `price:${safeToken}:${safeNetwork}:${safeTimestamp}`;
   }
 }
